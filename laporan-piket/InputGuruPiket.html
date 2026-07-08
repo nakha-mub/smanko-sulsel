@@ -32,13 +32,43 @@
             max-width: 650px;
         }
 
-        h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-            text-align: center;
+        /* CSS BARU: Pembungkus Judul & Tombol Navigasi */
+        .header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             margin-bottom: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-wrapper h2 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        /* CSS BARU: Tombol Tampilkan Data */
+        .btn-view-nav {
+            padding: 10px 18px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-view-nav:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-1px);
         }
 
         .form-grid {
@@ -112,7 +142,17 @@
         .success { background-color: #d1fae5; color: #065f46; }
         .error { background-color: #fee2e2; color: #991b1b; }
 
+        /* Responsif layout HP */
         @media (max-width: 600px) {
+            .header-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-view-nav {
+                width: 100%;
+                justify-content: center;
+                box-sizing: border-box;
+            }
             .form-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: span 1; }
         }
@@ -121,24 +161,28 @@
 <body>
 
 <div class="form-container">
-    <h2>Laporan Piket Guru / Siswa Terlambat</h2>
+    <div class="header-wrapper">
+        <h2>Laporan Piket Guru / Siswa Terlambat</h2>
+        <a href="TampilGuruPiket.html" class="btn-view-nav">📋 Tampilkan Data</a>
+    </div>
+
     <form id="piketForm">
         <div class="form-grid">
             <div class="input-group full-width">
-                <label for="nama">Nama Lengkap Siswa</label>
+                <label for="kelas_nama_nis">Nama Lengkap Siswa</label>
                 <select id="kelas_nama_nis">
-					<option value="">Memuat data...</option>
-				</select>
+                    <option value="">Memuat data...</option>
+                </select>
             </div>
 
             <div class="input-group full-width">
                 <label for="keterangan">Keterangan Pelanggaran</label>
-				<select id="keterangan">
-					<option value="">-- Pilih Salah Satu --</option>
-					<option value="Terlambat">Terlambat</option>
-					<option value="Telat (Izin)">Terlambat (Izin)</option>
-					<option value="Izin Keluar">Izin Keluar</option>
-				</select>
+                <select id="keterangan">
+                    <option value="">-- Pilih Salah Satu --</option>
+                    <option value="Terlambat">Terlambat</option>
+                    <option value="Telat (Izin)">Terlambat (Izin)</option>
+                    <option value="Izin Keluar">Izin Keluar</option>
+                </select>
             </div>
             <div class="input-group full-width">
                 <label for="catatan">Catatan / Alasan</label>
@@ -154,8 +198,7 @@
 
 <script src="option-kelas-nama-nis.js"></script>
 <script>
-
-// 2. Handler Pengiriman Formulir Laporan Piket ke Google Sheets (POST)
+// Handler Pengiriman Formulir Laporan Piket ke Google Sheets (POST)
 document.getElementById('piketForm').addEventListener('submit', async function(e) {
     e.preventDefault(); 
 
@@ -179,10 +222,9 @@ document.getElementById('piketForm').addEventListener('submit', async function(e
     };
 
     try {
-        // Mengirimkan data menggunakan metode POST ke Apps Script yang sama
         const response = await fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors', // Menghindari masalah restriksi CORS
+            mode: 'no-cors', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payloadData)
         });
@@ -191,7 +233,6 @@ document.getElementById('piketForm').addEventListener('submit', async function(e
         statusMsg.className = 'success';
         statusMsg.innerText = 'Sukses! Laporan piket berhasil direkam di Google Spreadsheet.';
         
-        // Reset form setelah sukses mengirim
         document.getElementById('piketForm').reset();
     } catch (error) {
         statusMsg.style.display = 'block';
@@ -202,7 +243,6 @@ document.getElementById('piketForm').addEventListener('submit', async function(e
         btnSubmit.innerText = 'Simpan Laporan Piket';
     }
 });
-
 </script>
 
 </body>
