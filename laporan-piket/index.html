@@ -34,6 +34,16 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
+        /* Style Gambar Kop Surat Header */
+        .header-logo {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            display: block;
+        }
+
         /* Pembungkus Header & Tombol Action */
         .header-wrapper {
             display: flex;
@@ -79,7 +89,7 @@
             transform: translateY(-1px);
         }
 
-        /* BARU: Tombol Cetak */
+        /* Tombol Cetak */
         .btn-print {
             padding: 10px 20px;
             background-color: var(--print-color);
@@ -227,14 +237,14 @@
             }
         }
 
-        /* ===================================================
-           CSS MEDIA PRINT (Diterapkan khusus saat mencetak)
-           =================================================== */
+        /* CSS MEDIA PRINT - DIPERBARUI AGAR HEADER TABEL TETAP BERWARNA */
         @media print {
             body {
                 background-color: white;
                 padding: 0;
                 margin: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .container {
@@ -243,7 +253,11 @@
                 padding: 0;
             }
 
-            /* Sembunyikan elemen tombol dan form pencarian */
+            .header-logo {
+                max-height: none;
+                margin-bottom: 10px;
+            }
+
             .action-buttons, .search-box, .btn-search, #statusMsg {
                 display: none !important;
             }
@@ -274,11 +288,17 @@
                 border: 1px solid #333 !important;
                 padding: 6px 8px !important;
                 font-size: 0.8rem !important;
-                color: black !important;
             }
 
+            /* PAKSA WARNA HEADER TABEL TETAP SESUAI TAMPILAN WEB */
             th {
-                background-color: #e2e8f0 !important;
+                background-color: var(--primary-color) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            td {
                 color: black !important;
             }
 
@@ -291,9 +311,11 @@
 <body>
 
 <div class="container">
+    <!-- Gambar Header Kop Surat SMANKO -->
+    <img src="Header.jpg" alt="Header SMANKO Sulsel" class="header-logo">
+
     <div class="header-wrapper">
-        <h2>Pencarian Data Siswa - Laporan Piket</h2>
-        <!-- BARU: Container Tombol Aksi (Cetak & Input Laporan) -->
+        <h2>Laporan Piket <span id="filterK"></span></h2>
         <div class="action-buttons">
             <button onclick="cetakLaporan()" class="btn-print">🖨️ Cetak Hasil Filter</button>
             <a href="InputGuruPiket.html" class="btn-input-nav">➔ Input Laporan Baru</a>
@@ -410,6 +432,45 @@
         return dateObj.toLocaleString('id-ID', { weekday: 'long' });
     }
 
+    function updateLabelFilter() {
+        const selectSiswa = document.getElementById('kelas_nama_nis');
+        const valSiswa = selectSiswa.value;
+        const textSiswa = selectSiswa.options[selectSiswa.selectedIndex]?.text || '';
+
+        const valKet = document.getElementById('keterangan').value;
+        const valTgl = document.getElementById('tanggal').value;
+
+        let teksHasil = [];
+
+        if (valSiswa !== "") {
+            teksHasil.push(`[${textSiswa}]`);
+        }
+
+        if (valKet !== "") {
+            teksHasil.push(`[Keterangan: ${valKet}]`);
+        }
+
+        if (valTgl !== "") {
+            const parts = valTgl.split('-');
+            if (parts.length === 3) {
+                const tglObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                const hariStr = buatHari(tglObj);
+                const tglStr = buatTanggal(tglObj);
+                teksHasil.push(`[${hariStr}, ${tglStr}]`);
+            }
+        }
+
+        const spanFilter = document.getElementById('filterK');
+        if (teksHasil.length > 0) {
+            const teksGabungan = teksHasil.join(" ");
+            spanFilter.innerText = " - " + teksGabungan;
+            document.title = "Laporan Piket - " + teksGabungan;
+        } else {
+            spanFilter.innerText = "";
+            document.title = "Laporan Piket";
+        }
+    }
+
     function tampilkanKeTabel(dataData) {
         const tableBody = document.getElementById('tableBody');
         const tableElement = document.getElementById('dataTable');
@@ -472,13 +533,15 @@
         const input2 = document.getElementById('keterangan').value.toLowerCase().trim();
         const inputTanggal = document.getElementById('tanggal').value;
 
+        updateLabelFilter();
+
         const hasilFilter = semuaSiswa.filter(siswa => {
             const dataGabung = `${siswa.kelas_nama_nis} ${siswa.nisn} ${siswa.nis} ${siswa.nama} ${siswa.kelas}`.toLowerCase();
             const keteranganSiswa = (siswa.keterangan || '').toLowerCase().trim();
 
             const cocok1 = dataGabung.includes(input1);
             const cocok2 = input2 === "" || keteranganSiswa.includes(input2);
-            
+			
             let cocokTanggal = true; 
             if (inputTanggal) {
                 cocokTanggal = (buatTanggal1(siswa.tanggal) === inputTanggal);
@@ -490,7 +553,6 @@
         tampilkanKeTabel(hasilFilter);
     }
 
-    /* BARU: Fungsi Cetak Laporan Hasil Filter */
     function cetakLaporan() {
         const tableBody = document.getElementById('tableBody');
         if (!tableBody || tableBody.children.length === 0) {
