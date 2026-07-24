@@ -12,6 +12,7 @@
             --bg-color: #f8fafc;
             --text-color: #334155;
             --success-color: #10b981;
+            --print-color: #475569;
         }
 
         body {
@@ -33,7 +34,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        /* CSS BARU: Pembungkus Header & Tombol Input */
+        /* Pembungkus Header & Tombol Action */
         .header-wrapper {
             display: flex;
             justify-content: space-between;
@@ -51,7 +52,13 @@
             font-size: 1.6rem;
         }
 
-        /* CSS BARU: Tombol Input Laporan Baru */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Tombol Input Laporan Baru */
         .btn-input-nav {
             padding: 10px 20px;
             background-color: var(--success-color);
@@ -69,6 +76,28 @@
 
         .btn-input-nav:hover {
             background-color: #059669;
+            transform: translateY(-1px);
+        }
+
+        /* BARU: Tombol Cetak */
+        .btn-print {
+            padding: 10px 20px;
+            background-color: var(--print-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(71, 85, 105, 0.2);
+        }
+
+        .btn-print:hover {
+            background-color: #334155;
             transform: translateY(-1px);
         }
 
@@ -182,20 +211,79 @@
             flex-wrap: wrap;
             font-size: 1rem;
         }
-        .counter-item {
-            font-weight: bold;
-            color: var(--primary-color);
-        }
 
         @media (max-width: 600px) {
             .header-wrapper {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            .btn-input-nav {
+            .action-buttons {
                 width: 100%;
+            }
+            .btn-input-nav, .btn-print {
+                flex: 1;
                 justify-content: center;
                 box-sizing: border-box;
+            }
+        }
+
+        /* ===================================================
+           CSS MEDIA PRINT (Diterapkan khusus saat mencetak)
+           =================================================== */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            /* Sembunyikan elemen tombol dan form pencarian */
+            .action-buttons, .search-box, .btn-search, #statusMsg {
+                display: none !important;
+            }
+
+            .header-wrapper {
+                border-bottom: 2px solid #000;
+                margin-bottom: 10px;
+            }
+
+            .header-wrapper h2 {
+                color: black;
+                font-size: 1.4rem;
+                text-align: center;
+                width: 100%;
+            }
+
+            .table-container {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                border: 1px solid #333 !important;
+                padding: 6px 8px !important;
+                font-size: 0.8rem !important;
+                color: black !important;
+            }
+
+            th {
+                background-color: #e2e8f0 !important;
+                color: black !important;
+            }
+
+            tr:nth-child(even) {
+                background-color: transparent !important;
             }
         }
     </style>
@@ -205,40 +293,45 @@
 <div class="container">
     <div class="header-wrapper">
         <h2>Pencarian Data Siswa - Laporan Piket</h2>
-        <a href="InputGuruPiket.html" class="btn-input-nav">➔ Input Laporan Baru</a>
+        <!-- BARU: Container Tombol Aksi (Cetak & Input Laporan) -->
+        <div class="action-buttons">
+            <button onclick="cetakLaporan()" class="btn-print">🖨️ Cetak Hasil Filter</button>
+            <a href="InputGuruPiket.html" class="btn-input-nav">➔ Input Laporan Baru</a>
+        </div>
     </div>
     
     <div class="search-box">
         <div class="input-group">
-            <label for="searchNama">Kelas - Nama Siswa - NIS</label>
-            <!--<input type="text" id="searchNama" placeholder="Ketik nama siswa...">-->
-			<select id="kelas_nama_nis" onchange="filterData()">
-					<option value="">Memuat data...</option>
-				</select>
+            <label for="kelas_nama_nis">Kelas - Nama Siswa - NIS</label>
+            <select id="kelas_nama_nis" onchange="filterData()">
+                <option value="">Memuat data...</option>
+            </select>
         </div>
         <div class="input-group">
-            <label for="searchKelas">Keterangan</label>
-            <!--<input type="text" id="searchKelas" placeholder="Ketik kelas (Contoh: X A, 12, dll)...">-->
-			<select id="keterangan" onchange="filterData()">
-				<option value="">-- Pilih Salah Satu --</option>
-				<option value="Terlambat">Terlambat</option>
-				<option value="Telat (Izin)">Terlambat (Izin)</option>
-				<option value="Izin Keluar">Izin Keluar</option>
-				<option value="Langgar Sepatu">Pelanggaran Sepatu</option>
-				<option value="Langgar Baju">Pelanggaran Baju</option>
-				<option value="Langgar Celana-Rok">Pelanggaran Celana/Rok</option>
-				<option value="Langgar Rambut-Jilbab">Pelanggaran Rambut/Jilbab</option>
-			</select>
+            <label for="keterangan">Keterangan</label>
+            <select id="keterangan" onchange="filterData()">
+                <option value="">-- Semua --</option>
+                <option value="Terlambat">Terlambat</option>
+                <option value="Telat (Izin)">Terlambat (Izin)</option>
+                <option value="Izin Keluar">Izin Keluar</option>
+                <option value="Langgar Sepatu">Pelanggaran Sepatu</option>
+                <option value="Langgar Baju">Pelanggaran Baju</option>
+                <option value="Langgar Celana-Rok">Pelanggaran Celana/Rok</option>
+                <option value="Langgar Rambut-Jilbab">Pelanggaran Rambut/Jilbab</option>
+            </select>
         </div>
-		<div class="input-group">
-            <label for="searchNama">Tanggal</label>
-            <input type="date" id="tanggal" placeholder="Ketik nama siswa..." onchange="filterData()">
+        <div class="input-group">
+            <label for="tanggal">Tanggal</label>
+            <input type="date" id="tanggal" onchange="filterData()">
         </div>
         <button class="btn-search" onclick="filterData()">Cari</button>
     </div>
-	<div class="search-box">
-		<div class="input-group" id="jumlah" style="display: none; text-align: center;"><big><b><span id="jmlsemua"></span><span id="jml1"></span><span id="jml2"></span><span id="jml3"></span></b></big></div>
-	</div>
+
+    <div class="search-box">
+        <div class="input-group" id="jumlah" style="display: none; text-align: center;">
+            <big><b><span id="jmlsemua"></span><span id="jml1"></span><span id="jml2"></span><span id="jml3"></span></b></big>
+        </div>
+    </div>
 
     <div id="statusMsg" class="status-msg">Menghubungkan ke database spreadsheet...</div>
     
@@ -250,12 +343,12 @@
                     <th>NIS</th>
                     <th>Nama Lengkap</th>
                     <th>Kelas</th>
-					<th>Jenis Kelamin</th>
-					<th>Cabang Olahraga</th>
-					<th>Hari, Tanggal</th>
-					<th>Waktu</th>
-					<th>Keterangan</th>
-					<th>Catatan</th>
+                    <th>Jenis Kelamin</th>
+                    <th>Cabang Olahraga</th>
+                    <th>Hari, Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Keterangan</th>
+                    <th>Catatan</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -264,19 +357,16 @@
 </div>
 
 <script>
-    // MASUKKAN URL APLIKASI WEB GOOGLE APPS SCRIPT ANDA DI SINI
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbxb4lW4ROLAEGGH-e4WHstHukmfC4zjNVjFznltlcr1_DlKXsp5O4nSgLTgd3OIckO4WQ/exec';
     
-    let semuaSiswa = []; // Tempat menyimpan data lokal dari database asli
+    let semuaSiswa = [];
 
-    // Mengambil data pertama kali saat website dibuka
     async function ambilDataAwal() {
         try {
             const response = await fetch(webAppUrl);
             semuaSiswa = await response.json();
             
             document.getElementById('statusMsg').style.display = 'none';
-            // Tampilkan seluruh data siswa secara default di awal
             tampilkanKeTabel(semuaSiswa);
         } catch (error) {
             console.error('Error:', error);
@@ -286,65 +376,45 @@
         }
     }
 	
-	//Fungsi waktu
-	function buatWaktu(isoString) {
-		const tanggalObjek = new Date(isoString);
-
-		//mengambil waktu berdasarkan Waktu Lokal PC/User:
-		const jamLokal = String(tanggalObjek.getHours()).padStart(2, '0');
-		const menitLokal = String(tanggalObjek.getMinutes()).padStart(2, '0');
-		const detikLokal = String(tanggalObjek.getSeconds()).padStart(2, '0');
-
-		var as = `${jamLokal}:${menitLokal}:${detikLokal}`;
-		return as;
-	}
+    function buatWaktu(isoString) {
+        if(!isoString) return "-";
+        const tanggalObjek = new Date(isoString);
+        const jamLokal = String(tanggalObjek.getHours()).padStart(2, '0');
+        const menitLokal = String(tanggalObjek.getMinutes()).padStart(2, '0');
+        const detikLokal = String(tanggalObjek.getSeconds()).padStart(2, '0');
+        return `${jamLokal}:${menitLokal}:${detikLokal}`;
+    }
 	
-	//Fungsi Tanggal
-	function buatTanggal(isoString) {
-		const dateObj = new Date(isoString);
-
-		// Mengambil tanggal, bulan, dan tahun berdasarkan Zona Waktu Lokal
-		const tahun = dateObj.getFullYear();
-		// getMonth() dimulai dari 0, jadi perlu ditambah 1. padStart memastikan ada 2 digit.
-		const bulan = String(dateObj.getMonth() + 1).padStart(2, '0');
-		const tanggal = String(dateObj.getDate()).padStart(2, '0');
-		const bulanIndonesia = dateObj.toLocaleString('id-ID', { month: 'long' });
-
-		// Format standar (YYYY-MM-DD)
-		const tanggalLokal = `${tanggal} ${bulanIndonesia} ${tahun}`;
-		return tanggalLokal;
-	}
+    function buatTanggal(isoString) {
+        if(!isoString) return "-";
+        const dateObj = new Date(isoString);
+        const tahun = dateObj.getFullYear();
+        const bulan = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const tanggal = String(dateObj.getDate()).padStart(2, '0');
+        const bulanIndonesia = dateObj.toLocaleString('id-ID', { month: 'long' });
+        return `${tanggal} ${bulanIndonesia} ${tahun}`;
+    }
 	
-	//Fungsi Tanggal1
-	function buatTanggal1(isoString) {
-		const dateObj = new Date(isoString);
-
-		// Mengambil tanggal, bulan, dan tahun berdasarkan Zona Waktu Lokal
-		const tahun = dateObj.getFullYear();
-		// getMonth() dimulai dari 0, jadi perlu ditambah 1. padStart memastikan ada 2 digit.
-		const bulan = String(dateObj.getMonth() + 1).padStart(2, '0');
-		const tanggal = String(dateObj.getDate()).padStart(2, '0');
-		const bulanIndonesia = dateObj.toLocaleString('id-ID', { month: 'long' });
-
-		// Format standar (YYYY-MM-DD)
-		const tanggalLokal = `${tahun}-${bulan}-${tanggal}`;
-		return tanggalLokal;
-	}
+    function buatTanggal1(isoString) {
+        if(!isoString) return "";
+        const dateObj = new Date(isoString);
+        const tahun = dateObj.getFullYear();
+        const bulan = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const tanggal = String(dateObj.getDate()).padStart(2, '0');
+        return `${tahun}-${bulan}-${tanggal}`;
+    }
 	
-	//Fungsi Hari
-	function buatHari(isoString) {
-		const dateObj = new Date(isoString);
+    function buatHari(isoString) {
+        if(!isoString) return "-";
+        const dateObj = new Date(isoString);
+        return dateObj.toLocaleString('id-ID', { weekday: 'long' });
+    }
 
-		// Mengambil nama hari sesuai zona waktu LOKAL komputer user
-		const hariLokal = dateObj.toLocaleString('id-ID', { weekday: 'long' });
-		return hariLokal;
-	}
-
-    // Fungsi untuk merender/menulis data array ke tabel HTML
     function tampilkanKeTabel(dataData) {
         const tableBody = document.getElementById('tableBody');
         const tableElement = document.getElementById('dataTable');
         const statusMsg = document.getElementById('statusMsg');
+        const jumlahBox = document.getElementById('jumlah');
 
         tableBody.innerHTML = '';
 
@@ -352,123 +422,84 @@
             tableElement.style.display = 'none';
             statusMsg.style.display = 'block';
             statusMsg.innerText = 'Data siswa tidak ditemukan.';
-			document.getElementById('jumlah').style.display = 'none';
+            jumlahBox.style.display = 'none';
             return;
         } else {
-			if (document.getElementById('kelas_nama_nis').value === "") {
-				jumlah.style.display = 'none';
-			} else {
-				jumlah.style.display = 'block';
-				jmlsemua.style.display = 'block';
-				if(document.getElementById('keterangan').value === "Terlambat") {
-					jml1.style.display = 'block';
-					jml2.style.display = 'none';
-					jml3.style.display = 'none';
-				} else if(document.getElementById('keterangan').value === "Telat (Izin)") {
-					jml1.style.display = 'none';
-					jml2.style.display = 'block';
-					jml3.style.display = 'none';
-				} else if(document.getElementById('keterangan').value === "Izin Keluar") {
-					jml1.style.display = 'none';
-					jml2.style.display = 'none';
-					jml3.style.display = 'block';
-				} else {
-					jml1.style.display = 'none';
-					jml2.style.display = 'none';
-					jml3.style.display = 'none';
-				}
-			}
-		}
+            if (document.getElementById('kelas_nama_nis').value === "") {
+                jumlahBox.style.display = 'none';
+            } else {
+                jumlahBox.style.display = 'block';
+                document.getElementById('jmlsemua').style.display = 'block';
+                const ket = document.getElementById('keterangan').value;
+                document.getElementById('jml1').style.display = (ket === "Terlambat") ? 'block' : 'none';
+                document.getElementById('jml2').style.display = (ket === "Telat (Izin)") ? 'block' : 'none';
+                document.getElementById('jml3').style.display = (ket === "Izin Keluar") ? 'block' : 'none';
+            }
+        }
 
         statusMsg.style.display = 'none';
         tableElement.style.display = 'table';
-		var i = 0;
+        var i = 0;
         dataData.forEach(siswa => {
-			i = i+1;
+            i++;
             const row = document.createElement('tr');
-            var jk = "";
-			if (siswa.jenis_kelamin === "L") {
-				jk = "Laki-laki";
-			} else {
-				jk = "Perempuan";
-			}
-            // PENTING: Nama properti (siswa.nama, siswa.kelas, dsb) harus menggunakan HURUF KECIL SEMUA
-            // sesuai nama kolom header di Google Spreadsheet Anda.
+            var jk = (siswa.jenis_kelamin === "L") ? "Laki-laki" : "Perempuan";
+            
             row.innerHTML = `
-                <td>${i || '-'}</td>
-				<td>${siswa.nis || '-'}</td>
+                <td>${i}</td>
+                <td>${siswa.nis || '-'}</td>
                 <td>${siswa.nama || '-'}</td>
                 <td>${siswa.kelas || '-'}</td>
-				<td>${jk || '-'}</td>
-				<td>${siswa.cabor || '-'}</td>
-				<td>${buatHari(siswa.tanggal) || '-'}, ${buatTanggal(siswa.tanggal) || '-'}</td>
-				<td>${buatWaktu(siswa.waktu) || '-'}</td>
-				<td>${siswa.keterangan || '-'}</td>
-				<td>${siswa.catatan || '-'}</td>
+                <td>${jk}</td>
+                <td>${siswa.cabor || '-'}</td>
+                <td>${buatHari(siswa.tanggal)}, ${buatTanggal(siswa.tanggal)}</td>
+                <td>${buatWaktu(siswa.waktu)}</td>
+                <td>${siswa.keterangan || '-'}</td>
+                <td>${siswa.catatan || '-'}</td>
             `;
-			console.log(siswa.tanggal);
             tableBody.appendChild(row);
-			var jsm = siswa.terlambat+siswa.telat_izin+siswa.izin_keluar;
-			document.getElementById('jmlsemua').innerText = "Jumlah Semua:  "+jsm;
-			document.getElementById('jml1').innerText = "Jumlah Terlambat: "+siswa.terlambat;
-			document.getElementById('jml2').innerText = "Jumlah Terlambat dengan Izin: "+siswa.telat_izin;
-			document.getElementById('jml3').innerText = "Jumlah Izin Keluar: "+siswa.izin_keluar;
+            
+            var jsm = (siswa.terlambat || 0) + (siswa.telat_izin || 0) + (siswa.izin_keluar || 0);
+            document.getElementById('jmlsemua').innerText = "Jumlah Semua: " + jsm;
+            document.getElementById('jml1').innerText = " | Jumlah Terlambat: " + (siswa.terlambat || 0);
+            document.getElementById('jml2').innerText = " | Jumlah Terlambat dengan Izin: " + (siswa.telat_izin || 0);
+            document.getElementById('jml3').innerText = " | Jumlah Izin Keluar: " + (siswa.izin_keluar || 0);
         });
     }
 
-    // Fungsi Filter Pencarian secara fleksibel berdasarkan Nama dan/atau Kelas
     function filterData() {
-		// Mengambil nilai dari input pencarian
-		const input1 = document.getElementById('kelas_nama_nis').value.toLowerCase().trim();
-		const input2 = document.getElementById('keterangan').value.toLowerCase().trim();
-		const inputTanggal = document.getElementById('tanggal').value; // Menghasilkan format YYYY-MM-DD
+        const input1 = document.getElementById('kelas_nama_nis').value.toLowerCase().trim();
+        const input2 = document.getElementById('keterangan').value.toLowerCase().trim();
+        const inputTanggal = document.getElementById('tanggal').value;
 
-		const hasilFilter = semuaSiswa.filter(siswa => {
-			// Gabungkan kolom data pendaftar agar pencarian text lebih luas dan tidak sensitif huruf kapital
-			const dataGabung = `${siswa.kelas_nama_nis} ${siswa.nisn} ${siswa.nis} ${siswa.nama} ${siswa.kelas}`.toLowerCase();
-			const keteranganSiswa = (siswa.keterangan || '').toLowerCase().trim();
+        const hasilFilter = semuaSiswa.filter(siswa => {
+            const dataGabung = `${siswa.kelas_nama_nis} ${siswa.nisn} ${siswa.nis} ${siswa.nama} ${siswa.kelas}`.toLowerCase();
+            const keteranganSiswa = (siswa.keterangan || '').toLowerCase().trim();
 
-			// 1. Cocokkan Kelas/Nama/NIS
-			const cocok1 = dataGabung.includes(input1);
-			
-			// 2. Cocokkan Keterangan
-			const cocok2 = input2 === "" || keteranganSiswa.includes(input2);
-			
-			// 3. Cocokkan Tanggal (Logika Baru)
-			let cocokTanggal = true; 
-			if (inputTanggal) {
-				const tglSiswaRaw = siswa.tanggal || ''; // Ambil data tanggal dari spreadsheet (Format: M/D/YYYY)
-				cocokTanggal = (buatTanggal1(tglSiswaRaw) === inputTanggal);
-				/*const parts = tglSiswaRaw.split('/');
-				
-				if (parts.length === 3) {
-					// Ubah format M/D/YYYY dari Sheets menjadi YYYY-MM-DD agar sama dengan input HTML
-					const bulan = parts[0].padStart(2, '0');
-					const hari = parts[1].padStart(2, '0');
-					const tahun = parts[2];
-					const tglSiswaFormatted = `${tahun}-${bulan}-${hari}`;
-					
-					cocokTanggal = (tglSiswaFormatted === inputTanggal);
-				} else {
-					cocokTanggal = false; // Jika format tanggal di sheet tidak sesuai standar M/D/YYYY
-				}*/
-			}
+            const cocok1 = dataGabung.includes(input1);
+            const cocok2 = input2 === "" || keteranganSiswa.includes(input2);
+            
+            let cocokTanggal = true; 
+            if (inputTanggal) {
+                cocokTanggal = (buatTanggal1(siswa.tanggal) === inputTanggal);
+            }
 
-			// Mengharuskan semua kondisi yang diisi bernilai cocok (TRUE)
-			return cocok1 && cocok2 && cocokTanggal;
-		});
+            return cocok1 && cocok2 && cocokTanggal;
+        });
 
-		tampilkanKeTabel(hasilFilter);
-	}
+        tampilkanKeTabel(hasilFilter);
+    }
 
-    // Fitur pemicu tombol "Enter" saat mengetik di kolom input pencarian
-    //document.getElementById('kelas_nama_nis').addEventListener('change', e => { if(e.key === 'Enter') filterData(); });
-    //document.getElementById('keterangan').addEventListener('change', e => { if(e.key === 'Enter') filterData(); });
-	
-	
-	
+    /* BARU: Fungsi Cetak Laporan Hasil Filter */
+    function cetakLaporan() {
+        const tableBody = document.getElementById('tableBody');
+        if (!tableBody || tableBody.children.length === 0) {
+            alert("Tidak ada data hasil filter yang bisa dicetak.");
+            return;
+        }
+        window.print();
+    }
 
-    // Jalankan penarikan data otomatis saat halaman selesai dimuat
     window.onload = ambilDataAwal;
 </script>
 
