@@ -5,14 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Piket</title>
 	<link rel="icon" type="image/png" href="assets/img/Logo SMANKO fix (bg putih).png">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
-            --primary-color: #1e3a8a;
-            --secondary-color: #3b82f6;
+            --primary-color: #1e3a8a;       /* Navy Blue */
+            --secondary-color: #3b82f6;     /* Royal Blue Light */
             --bg-color: #f8fafc;
             --text-color: #334155;
-            --success-color: #10b981;
-            --print-color: #475569;
+            
+            /* Warna Tombol Profesional & Formal */
+            --btn-chart-color: #1e40af;    /* Dark Royal Blue (Grafik) */
+            --btn-chart-hover: #1d4ed8;
+            
+            --btn-print-color: #475569;    /* Slate Gray/Blue (Cetak) */
+            --btn-print-hover: #334155;
+            
+            --btn-input-color: #0d9488;    /* Deep Teal / Emerald Formal (Input) */
+            --btn-input-hover: #0f766e;
         }
 
         body {
@@ -68,47 +80,52 @@
             flex-wrap: wrap;
         }
 
-        /* Tombol Input Laporan Baru */
-        .btn-input-nav {
-            padding: 10px 20px;
-            background-color: var(--success-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            transition: background-color 0.3s, transform 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 5px rgba(16, 185, 129, 0.2);
-        }
-
-        .btn-input-nav:hover {
-            background-color: #059669;
-            transform: translateY(-1px);
-        }
-
-        /* Tombol Cetak */
-        .btn-print {
-            padding: 10px 20px;
-            background-color: var(--print-color);
+        /* Base Style untuk Semua Tombol Action Header */
+        .btn-action {
+            padding: 10px 18px;
             color: white;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 0.92rem;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 5px rgba(71, 85, 105, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
-        .btn-print:hover {
-            background-color: #334155;
+        .btn-action svg {
+            flex-shrink: 0;
+        }
+
+        .btn-action:hover {
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Variasi Warna Button Formal & Masing-Masing Perbedaan */
+        .btn-chart {
+            background-color: var(--btn-chart-color);
+        }
+        .btn-chart:hover {
+            background-color: var(--btn-chart-hover);
+        }
+
+        .btn-print {
+            background-color: var(--btn-print-color);
+        }
+        .btn-print:hover {
+            background-color: var(--btn-print-hover);
+        }
+
+        .btn-input-nav {
+            background-color: var(--btn-input-color);
+        }
+        .btn-input-nav:hover {
+            background-color: var(--btn-input-hover);
         }
 
         /* Form Filter/Pencarian */
@@ -121,7 +138,7 @@
 
         .input-group {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
             display: flex;
             flex-direction: column;
             gap: 5px;
@@ -210,16 +227,50 @@
             padding: 30px;
         }
 
-        /* Box Statistik */
-        .counter-box {
+        /* Modal Popup Grafik */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 92%;
+            max-width: 950px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        .chart-controls {
             display: flex;
-            gap: 25px;
-            background: #f1f5f9;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            font-size: 1rem;
         }
 
         @media (max-width: 600px) {
@@ -230,14 +281,14 @@
             .action-buttons {
                 width: 100%;
             }
-            .btn-input-nav, .btn-print {
+            .btn-action {
                 flex: 1;
                 justify-content: center;
                 box-sizing: border-box;
             }
         }
 
-        /* CSS MEDIA PRINT - DIPERBARUI AGAR HEADER TABEL TETAP BERWARNA */
+        /* CSS MEDIA PRINT */
         @media print {
             body {
                 background-color: white;
@@ -258,7 +309,7 @@
                 margin-bottom: 10px;
             }
 
-            .action-buttons, .search-box, .btn-search, #statusMsg {
+            .action-buttons, .search-box, .btn-search, #statusMsg, .modal {
                 display: none !important;
             }
 
@@ -290,7 +341,6 @@
                 font-size: 0.8rem !important;
             }
 
-            /* PAKSA WARNA HEADER TABEL TETAP SESUAI TAMPILAN WEB */
             th {
                 background-color: var(--primary-color) !important;
                 color: white !important;
@@ -311,25 +361,61 @@
 <body>
 
 <div class="container">
-    <!-- Gambar Header Kop Surat SMANKO -->
     <img src="assets/img/Header.jpg" alt="Header SMANKO Sulsel" class="header-logo">
 
     <div class="header-wrapper">
         <h2>Laporan Piket <span id="filterK"></span></h2>
         <div class="action-buttons">
-            <button onclick="#" class="btn-print">🖨️ Grafik Persentase Keterlambatan/Pelanggaran Piket</button>
-			<button onclick="cetakLaporan()" class="btn-print">🖨️ Cetak Hasil Filter</button>
-            <a href="InputGuruPiket.html" class="btn-input-nav">➔ Input Laporan Baru</a>
+            <!-- Tombol Grafik (Royal Blue) -->
+            <button onclick="bukaModalGrafik()" class="btn-action btn-chart">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Grafik Keterlambatan & Pelanggaran
+            </button>
+            
+            <!-- Tombol Cetak (Slate Blue/Gray) -->
+            <button onclick="cetakLaporan()" class="btn-action btn-print">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Cetak Hasil Filter
+            </button>
+
+            <!-- Tombol Input Baru (Deep Teal/Emerald) -->
+            <a href="InputGuruPiket.html" class="btn-action btn-input-nav">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Input Laporan Baru
+            </a>
         </div>
     </div>
     
     <div class="search-box">
+        <div class="input-group">
+            <label for="filter_kelas">Pilih Kelas</label>
+            <select id="filter_kelas" onchange="filterData()">
+                <option value="">-- Semua Kelas --</option>
+                <option value="X 1">X 1</option>
+                <option value="X 2">X 2</option>
+                <option value="X 3">X 3</option>
+                <option value="X 4">X 4</option>
+                <option value="X 5">X 5</option>
+                <option value="XI 1">XI 1</option>
+                <option value="XI 2">XI 2</option>
+                <option value="XI 3">XI 3</option>
+                <option value="XI 4">XI 4</option>
+                <option value="XI 5">XI 5</option>
+                <option value="XII 1">XII 1</option>
+                <option value="XII 2">XII 2</option>
+                <option value="XII 3">XII 3</option>
+                <option value="XII 4">XII 4</option>
+                <option value="XII 5">XII 5</option>
+            </select>
+        </div>
+
         <div class="input-group">
             <label for="kelas_nama_nis">Kelas - Nama Siswa - NIS</label>
             <select id="kelas_nama_nis" onchange="filterData()">
                 <option value="">Memuat data...</option>
             </select>
         </div>
+        
         <div class="input-group">
             <label for="keterangan">Keterangan</label>
             <select id="keterangan" onchange="filterData()">
@@ -343,6 +429,7 @@
                 <option value="Langgar Rambut-Jilbab">Pelanggaran Rambut/Jilbab</option>
             </select>
         </div>
+
         <div class="input-group">
             <label for="tanggal">Tanggal</label>
             <input type="date" id="tanggal" onchange="filterData()">
@@ -350,9 +437,20 @@
         <button class="btn-search" onclick="filterData()">Cari</button>
     </div>
 
+    <!-- ELEMEN ELEMEN JUMLAH DATA PER KATEGORI -->
     <div class="search-box">
         <div class="input-group" id="jumlah" style="display: none; text-align: center;">
-            <big><b><span id="jmlsemua"></span><span id="jml1"></span><span id="jml2"></span><span id="jml3"></span></b></big>
+            <b><b>
+                <span id="jmlsemua"></span>
+                <span id="jmlkelas"></span>
+                <span id="jml1"></span>
+                <span id="jml2"></span>
+                <span id="jml3"></span>
+                <span id="jml4"></span>
+                <span id="jml5"></span>
+                <span id="jml6"></span>
+                <span id="jml7"></span>
+            </b></b>
         </div>
     </div>
 
@@ -379,10 +477,78 @@
     </div>
 </div>
 
+<!-- MODAL POPUP UNTUK GRAFIK -->
+<div id="modalGrafik" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="tutupModalGrafik()">&times;</span>
+        <h3 style="margin-top:0; color: var(--primary-color);">Grafik Rekapitulasi Keterlambatan & Pelanggaran Peserta Didik</h3>
+        
+        <div class="chart-controls">
+            <div>
+                <label for="pilihPeriode"><b>Tampilkan Berdasarkan:</b></label>
+                <select id="pilihPeriode" onchange="togglePilihanBulan(); updateChart();">
+                    <option value="bulan">Per Bulan (Perbandingan 2 Bulan)</option>
+                    <option value="pekan">Per Pekan</option>
+                </select>
+            </div>
+
+            <!-- DROPDOWN DUA BULAN BERURUTAN -->
+            <div id="wrapperDuaBulan">
+                <label for="pilihDuaBulan"><b>Pilih Perbandingan Bulan:</b></label>
+                <select id="pilihDuaBulan" onchange="updateChart()">
+                    <option value="0-1">Januari & Februari</option>
+                    <option value="1-2">Februari & Maret</option>
+                    <option value="2-3">Maret & April</option>
+                    <option value="3-4">April & Mei</option>
+                    <option value="4-5">Mei & Juni</option>
+                    <option value="5-6">Juni & Juli</option>
+                    <option value="6-7">Juli & Agustus</option>
+                    <option value="7-8">Agustus & September</option>
+                    <option value="8-9">September & Oktober</option>
+                    <option value="9-10">Oktober & November</option>
+                    <option value="10-11">November & Desember</option>
+                </select>
+            </div>
+
+            <!-- DROPDOWN BULAN & TAHUN KHUSUS MODE PER PEKAN -->
+            <div id="wrapperPekanBulan" style="display: none;">
+                <label for="pilihBulanPekan"><b>Pilih Bulan & Tahun:</b></label>
+                <select id="pilihBulanPekan" onchange="updateChart()">
+                    <option value="0">Januari</option>
+                    <option value="1">Februari</option>
+                    <option value="2">Maret</option>
+                    <option value="3">April</option>
+                    <option value="4">Mei</option>
+                    <option value="5">Juni</option>
+                    <option value="6">Juli</option>
+                    <option value="7">Agustus</option>
+                    <option value="8">September</option>
+                    <option value="9">Oktober</option>
+                    <option value="10">November</option>
+                    <option value="11">Desember</option>
+                </select>
+                <select id="pilihTahunPekan" onchange="updateChart()">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="position: relative; height: 400px;">
+            <canvas id="piketChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="option-kelas-nama-nis.js"></script>
+
 <script>
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbxb4lW4ROLAEGGH-e4WHstHukmfC4zjNVjFznltlcr1_DlKXsp5O4nSgLTgd3OIckO4WQ/exec';
     
     let semuaSiswa = [];
+    let myChart = null;
 
     async function ambilDataAwal() {
         try {
@@ -434,23 +600,18 @@
     }
 
     function updateLabelFilter() {
+        const valKelasFilter = document.getElementById('filter_kelas').value;
         const selectSiswa = document.getElementById('kelas_nama_nis');
         const valSiswa = selectSiswa.value;
         const textSiswa = selectSiswa.options[selectSiswa.selectedIndex]?.text || '';
-
         const valKet = document.getElementById('keterangan').value;
         const valTgl = document.getElementById('tanggal').value;
 
         let teksHasil = [];
 
-        if (valSiswa !== "") {
-            teksHasil.push(`[${textSiswa}]`);
-        }
-
-        if (valKet !== "") {
-            teksHasil.push(`[Keterangan: ${valKet}]`);
-        }
-
+        if (valKelasFilter !== "") teksHasil.push(`[Kelas: ${valKelasFilter}]`);
+        if (valSiswa !== "") teksHasil.push(`[${textSiswa}]`);
+        if (valKet !== "") teksHasil.push(`[Keterangan: ${valKet}]`);
         if (valTgl !== "") {
             const parts = valTgl.split('-');
             if (parts.length === 3) {
@@ -486,21 +647,22 @@
             statusMsg.innerText = 'Data siswa tidak ditemukan.';
             jumlahBox.style.display = 'none';
             return;
-        } else {
-            if (document.getElementById('kelas_nama_nis').value === "") {
-                jumlahBox.style.display = 'none';
-            } else {
-                jumlahBox.style.display = 'block';
-                document.getElementById('jmlsemua').style.display = 'block';
-                const ket = document.getElementById('keterangan').value;
-                document.getElementById('jml1').style.display = (ket === "Terlambat") ? 'block' : 'none';
-                document.getElementById('jml2').style.display = (ket === "Telat (Izin)") ? 'block' : 'none';
-                document.getElementById('jml3').style.display = (ket === "Izin Keluar") ? 'block' : 'none';
-            }
         }
+
+        jumlahBox.style.display = 'block';
+
+        // Inisialisasi total per jenis kategori
+        let totalTerlambat = 0;
+        let totalTelatIzin = 0;
+        let totalIzinKeluar = 0;
+        let totalSepatu = 0;
+        let totalBaju = 0;
+        let totalCelanaRok = 0;
+        let totalRambutJilbab = 0;
 
         statusMsg.style.display = 'none';
         tableElement.style.display = 'table';
+
         var i = 0;
         dataData.forEach(siswa => {
             i++;
@@ -520,16 +682,56 @@
                 <td>${siswa.catatan || '-'}</td>
             `;
             tableBody.appendChild(row);
-            
-            var jsm = (siswa.terlambat || 0) + (siswa.telat_izin || 0) + (siswa.izin_keluar || 0);
-            document.getElementById('jmlsemua').innerText = "Jumlah Semua: " + jsm;
-            document.getElementById('jml1').innerText = " | Jumlah Terlambat: " + (siswa.terlambat || 0);
-            document.getElementById('jml2').innerText = " | Jumlah Terlambat dengan Izin: " + (siswa.telat_izin || 0);
-            document.getElementById('jml3').innerText = " | Jumlah Izin Keluar: " + (siswa.izin_keluar || 0);
+
+            // Perhitungan kategori berdasarkan string keterangan
+            const ket = (siswa.keterangan || '').trim();
+            if (ket === 'Terlambat') {
+                totalTerlambat++;
+            } else if (ket === 'Telat (Izin)' || ket === 'Terlambat (Izin)') {
+                totalTelatIzin++;
+            } else if (ket === 'Izin Keluar') {
+                totalIzinKeluar++;
+            } else if (ket.includes('Sepatu')) {
+                totalSepatu++;
+            } else if (ket.includes('Baju')) {
+                totalBaju++;
+            } else if (ket.includes('Celana') || ket.includes('Rok')) {
+                totalCelanaRok++;
+            } else if (ket.includes('Rambut') || ket.includes('Jilbab')) {
+                totalRambutJilbab++;
+            }
         });
+
+        const totalSemua = dataData.length;
+        const ketSelected = document.getElementById('keterangan').value;
+        const kelasSelected = document.getElementById('filter_kelas').value;
+
+        // Penulisan Text ke elemen Span
+        document.getElementById('jmlsemua').innerText = "Total Hasil Filter: " + totalSemua + " Data";
+        document.getElementById('jmlkelas').innerText = kelasSelected ? "\n Kelas: " + kelasSelected : "";
+        document.getElementById('jml1').innerText = "\n Terlambat: " + totalTerlambat;
+        document.getElementById('jml2').innerText = " | Terlambat (Izin): " + totalTelatIzin;
+        document.getElementById('jml3').innerText = " | Izin Keluar: " + totalIzinKeluar;
+        document.getElementById('jml4').innerText = "\n Langgar Sepatu: " + totalSepatu;
+        document.getElementById('jml5').innerText = " | Langgar Baju: " + totalBaju;
+        document.getElementById('jml6').innerText = " | Langgar Celana/Rok: " + totalCelanaRok;
+        document.getElementById('jml7').innerText = " | Langgar Rambut/Jilbab: " + totalRambutJilbab;
+
+        // Kontrol tampilan per span berdasarkan opsi filter yang dipilih
+        document.getElementById('jmlsemua').style.display = 'inline';
+        document.getElementById('jmlkelas').style.display = kelasSelected ? 'inline' : 'none';
+        
+        document.getElementById('jml1').style.display = (ketSelected === "" || ketSelected === "Terlambat") ? 'inline' : 'none';
+        document.getElementById('jml2').style.display = (ketSelected === "" || ketSelected === "Telat (Izin)") ? 'inline' : 'none';
+        document.getElementById('jml3').style.display = (ketSelected === "" || ketSelected === "Izin Keluar") ? 'inline' : 'none';
+        document.getElementById('jml4').style.display = (ketSelected === "" || ketSelected === "Langgar Sepatu") ? 'inline' : 'none';
+        document.getElementById('jml5').style.display = (ketSelected === "" || ketSelected === "Langgar Baju") ? 'inline' : 'none';
+        document.getElementById('jml6').style.display = (ketSelected === "" || ketSelected === "Langgar Celana-Rok") ? 'inline' : 'none';
+        document.getElementById('jml7').style.display = (ketSelected === "" || ketSelected === "Langgar Rambut-Jilbab") ? 'inline' : 'none';
     }
 
     function filterData() {
+        const inputKelas = document.getElementById('filter_kelas').value.toLowerCase().trim();
         const input1 = document.getElementById('kelas_nama_nis').value.toLowerCase().trim();
         const input2 = document.getElementById('keterangan').value.toLowerCase().trim();
         const inputTanggal = document.getElementById('tanggal').value;
@@ -539,7 +741,9 @@
         const hasilFilter = semuaSiswa.filter(siswa => {
             const dataGabung = `${siswa.kelas_nama_nis} ${siswa.nisn} ${siswa.nis} ${siswa.nama} ${siswa.kelas}`.toLowerCase();
             const keteranganSiswa = (siswa.keterangan || '').toLowerCase().trim();
+            const kelasSiswa = (siswa.kelas || '').toLowerCase().trim();
 
+            const cocokKelas = inputKelas === "" || kelasSiswa === inputKelas;
             const cocok1 = dataGabung.includes(input1);
             const cocok2 = input2 === "" || keteranganSiswa.includes(input2);
 			
@@ -548,10 +752,188 @@
                 cocokTanggal = (buatTanggal1(siswa.tanggal) === inputTanggal);
             }
 
-            return cocok1 && cocok2 && cocokTanggal;
+            return cocokKelas && cocok1 && cocok2 && cocokTanggal;
         });
 
         tampilkanKeTabel(hasilFilter);
+    }
+
+    /* FUNGSI GRAFIK & RENTANG TANGGAL (SENIN - JUMAT) & FILTER PER PEKAN BERDASARKAN BULAN */
+    function bukaModalGrafik() {
+        document.getElementById('modalGrafik').style.display = 'flex';
+        // Set default bulan pekan ke bulan saat ini
+        const now = new Date();
+        document.getElementById('pilihBulanPekan').value = now.getMonth();
+        document.getElementById('pilihTahunPekan').value = now.getFullYear();
+        togglePilihanBulan();
+        updateChart();
+    }
+
+    function tutupModalGrafik() {
+        document.getElementById('modalGrafik').style.display = 'none';
+    }
+
+    function togglePilihanBulan() {
+        const jenisPeriode = document.getElementById('pilihPeriode').value;
+        const wrapperDuaBulan = document.getElementById('wrapperDuaBulan');
+        const wrapperPekanBulan = document.getElementById('wrapperPekanBulan');
+
+        if (jenisPeriode === 'bulan') {
+            wrapperDuaBulan.style.display = 'inline-block';
+            wrapperPekanBulan.style.display = 'none';
+        } else {
+            wrapperDuaBulan.style.display = 'none';
+            wrapperPekanBulan.style.display = 'inline-block';
+        }
+    }
+
+    function getRangePekan(d) {
+        const dateObj = new Date(d);
+        const curr = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+        
+        const day = curr.getDay(); 
+        const diffToMonday = curr.getDate() - day + (day === 0 ? -6 : 1); 
+        
+        const monday = new Date(curr.setDate(diffToMonday));
+        const friday = new Date(monday);
+        friday.setDate(monday.getDate() + 4); 
+
+        const formatTgl = (t) => {
+            const dd = String(t.getDate()).padStart(2, '0');
+            const mm = String(t.getMonth() + 1).padStart(2, '0');
+            return `${dd}/${mm}`;
+        };
+
+        const tempDate = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+        tempDate.setUTCDate(tempDate.getUTCDate() + 4 - (tempDate.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(),0,1));
+        const weekNo = Math.ceil((((tempDate - yearStart) / 86400000) + 1)/7);
+
+        return {
+            week: weekNo,
+            year: monday.getFullYear(),
+            labelRange: `Pekan ${weekNo} (${formatTgl(monday)} - ${formatTgl(friday)} ${monday.getFullYear()})`
+        };
+    }
+
+    function updateChart() {
+        const jenisPeriode = document.getElementById('pilihPeriode').value;
+        const rekap = {};
+
+        const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        let bulanAwal = -1, bulanAkhir = -1;
+        let bulanPekanTarget = -1, tahunPekanTarget = -1;
+
+        if (jenisPeriode === 'bulan') {
+            const valDuaBulan = document.getElementById('pilihDuaBulan').value.split('-');
+            bulanAwal = parseInt(valDuaBulan[0]);
+            bulanAkhir = parseInt(valDuaBulan[1]);
+        } else {
+            bulanPekanTarget = parseInt(document.getElementById('pilihBulanPekan').value);
+            tahunPekanTarget = parseInt(document.getElementById('pilihTahunPekan').value);
+        }
+
+        semuaSiswa.forEach(siswa => {
+            if (!siswa.tanggal) return;
+            const d = new Date(siswa.tanggal);
+            if (isNaN(d.getTime())) return;
+
+            let key = "";
+            if (jenisPeriode === 'bulan') {
+                const idxBulan = d.getMonth();
+                if (idxBulan !== bulanAwal && idxBulan !== bulanAkhir) return;
+                
+                key = `${namaBulanIndo[idxBulan]} ${d.getFullYear()}`;
+            } else {
+                // Filter tanggal berdasarkan Bulan & Tahun yang dipilih di Mode Per Pekan
+                if (d.getMonth() !== bulanPekanTarget || d.getFullYear() !== tahunPekanTarget) return;
+
+                const rangeInfo = getRangePekan(d);
+                key = rangeInfo.labelRange; 
+            }
+
+            if (!rekap[key]) {
+                rekap[key] = {
+                    'Terlambat': 0,
+                    'Telat (Izin)': 0,
+                    'Izin Keluar': 0,
+                    'Langgar Sepatu': 0,
+                    'Langgar Baju': 0,
+                    'Langgar Celana-Rok': 0,
+                    'Langgar Rambut-Jilbab': 0
+                };
+            }
+
+            const ket = (siswa.keterangan || '').trim();
+
+            if (ket === 'Terlambat') {
+                rekap[key]['Terlambat'] += 1;
+            } else if (ket === 'Telat (Izin)' || ket === 'Terlambat (Izin)') {
+                rekap[key]['Telat (Izin)'] += 1;
+            } else if (ket === 'Izin Keluar') {
+                rekap[key]['Izin Keluar'] += 1;
+            } else if (ket.includes('Sepatu')) {
+                rekap[key]['Langgar Sepatu'] += 1;
+            } else if (ket.includes('Baju')) {
+                rekap[key]['Langgar Baju'] += 1;
+            } else if (ket.includes('Celana') || ket.includes('Rok')) {
+                rekap[key]['Langgar Celana-Rok'] += 1;
+            } else if (ket.includes('Rambut') || ket.includes('Jilbab')) {
+                rekap[key]['Langgar Rambut-Jilbab'] += 1;
+            }
+        });
+
+        const labels = Object.keys(rekap);
+
+        const dataTerlambat = labels.map(k => rekap[k]['Terlambat']);
+        const dataTelatIzin = labels.map(k => rekap[k]['Telat (Izin)']);
+        const dataIzinKeluar = labels.map(k => rekap[k]['Izin Keluar']);
+        const dataSepatu = labels.map(k => rekap[k]['Langgar Sepatu']);
+        const dataBaju = labels.map(k => rekap[k]['Langgar Baju']);
+        const dataCelanaRok = labels.map(k => rekap[k]['Langgar Celana-Rok']);
+        const dataRambutJilbab = labels.map(k => rekap[k]['Langgar Rambut-Jilbab']);
+
+        const ctx = document.getElementById('piketChart').getContext('2d');
+
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Terlambat', data: dataTerlambat, backgroundColor: '#ef4444', borderRadius: 4 },
+                    { label: 'Telat (Izin)', data: dataTelatIzin, backgroundColor: '#f97316', borderRadius: 4 },
+                    { label: 'Izin Keluar', data: dataIzinKeluar, backgroundColor: '#3b82f6', borderRadius: 4 },
+                    { label: 'Langgar Sepatu', data: dataSepatu, backgroundColor: '#8b5cf6', borderRadius: 4 },
+                    { label: 'Langgar Baju', data: dataBaju, backgroundColor: '#ec4899', borderRadius: 4 },
+                    { label: 'Langgar Celana-Rok', data: dataCelanaRok, backgroundColor: '#14b8a6', borderRadius: 4 },
+                    { label: 'Langgar Rambut-Jilbab', data: dataRambutJilbab, backgroundColor: '#eab308', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { font: { size: 10 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
     }
 
     function cetakLaporan() {
@@ -565,8 +947,6 @@
 
     window.onload = ambilDataAwal;
 </script>
-
-<script src="option-kelas-nama-nis.js"></script>
 
 </body>
 </html>
